@@ -164,3 +164,21 @@ def create (request):
         
     return HttpResponse('1')
 
+@csrf_exempt
+def joinInfo(request):
+    code = request.POST.get('code')
+    title = request.POST.get('title')
+    content = request.POST.get('contents')
+
+    try :
+        bp = Exhibition.objects.get(galleryCode = code)
+        bp.galleryAmount = str(int(bp.galleryAmout) + 1)
+        bp.titles = bp.titles + "&"
+        bp.contents = bp.contents + "&"
+        bp.save()
+        return HttpResponse('1')
+    except Exception as e:
+        print(e)
+        return HttpResponse('-1')
+
+

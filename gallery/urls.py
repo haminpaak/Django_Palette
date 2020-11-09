@@ -8,4 +8,5 @@ urlpatterns = [
         path('getData/', views.getData, name='getData'),
         path('upload/', views.upload, name='upload'),
         path('create/', views.create, name='create'),
+        path('joinInfo/', views.joinInfo, name='create'),
 ]
