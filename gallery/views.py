@@ -11,13 +11,8 @@ from datetime import datetime
 from .models import Images
 
 FILE_PATH = "/home/palette/media/test/"
-
-# 검색
-@csrf_exempt
-# json 반환
-def getData(request):
-    pass
-    
+IMAGE_PATH = "/home/palette/media/temp/"    
+DATA_PATH = "/home/palette/media/database/"
 
 # 삭제
 @csrf_exempt
@@ -26,7 +21,8 @@ def deleteExhibition(request):
 
 
 # json Update
-def update():
+@csrf_exempt
+def update(request):
     j = open(FILE_PATH + "database.json", encoding="utf-8-sig")
     newList = {}
     newList["DATA"] = []
@@ -50,21 +46,17 @@ def update():
 
     with open(FILE_PATH + 'database.json', 'w', encoding='UTF-8-sig') as f:
         f.write(json.dumps(newList, ensure_ascii=False, indent=4))
+    
+    print("Done.")
 
+    return HttpResponse("Updated Successfully")
 
 # 전시회 정보 반환
 @csrf_exempt
 def getExhibition(request):
-    code = request.POST.get('code')
-    
-    try :
-        exhibition_bp = Exhibition.objects.get(galleryCode=code)
-        result = exhibition_bp.galleryCode
-        
-    except Exception as e:
-        print(e)
-        return HttpResponse('-1')
-    
+	pass
+
+
 # 전시회 정보 저장
 @csrf_exempt
 def register(request):
@@ -79,6 +71,7 @@ def register(request):
     
     # 코드 생성
     CODE = makeCode()
+    createDir(CODE)
 
     j = open(FILE_PATH + "database.json", encoding="utf-8-sig")
     newList = {}
@@ -95,9 +88,8 @@ def register(request):
         
             if (int(json_data["DATA"][i]["DUEDATE"])) >= (int(date_time)):
                 newList["DATA"].append(json_data["DATA"][i])
-
     except Exception as e:
-        print(e)
+	    print(e)
 
     dictToAdd = {"CODE":CODE, "TITLE":GalleryTitle, "CREATOR":GalleryCreator, "INFO":GalleryInfo, "AMOUNT":str(GalleryAmount), "ARTTITLES":Titles, "ARTCONTENTS":Contents, "DUEDATE":str(DueDate), "CATEGORY":Category}
 
@@ -131,38 +123,40 @@ def makeCode():
     f = open(FILE_PATH + "galleryCode.txt", 'w')
     f.write(str(CODE))
 
-    return str(CODE) 
+    return str(CODE)
 
-
-@csrf_exempt
-def uploadTest(request):
-    code = request.POST.get('code')
-    img = request.FILES['image']
-
-    bp = Exhibition.objects.get(galleryCode=code)
-    
-    try:
-        n = str(int(bp.galleryAmount) + 1)
-        bp.galleryAmount=n
-        bp.save()
-        return HttpResponse('1')
-    except Exception as e:
-        print(e)
-        return HttpResponse('-1')
-
-@csrf_exempt
-def upload(request):
-    file = request.FILES.get()
 
 @csrf_exempt
 def create (request):
-
-    image_list = request.FILES.getlist('image')
+    code = request.POST.get("code")
+    image_list = request.FILES.getlist("image")
+    print(code)
     for item in image_list:
         images = Images.objects.create(photo=item)
         images.save()
-        
-    return HttpResponse('1')
+
+    file_list = os.listdir(IMAGE_PATH)
+    bp = Exhibition.objects.get(galleryCode = code)
+    bp.galleryAmount = str(int(bp.galleryAmount) + 1)
+    
+    bp.save()
+
+    # imageName = os.path.splitext(IMAGE_PATH + galleryCode + ".jpg")
+    # print(imageName)
+    
+    fileName = bp.galleryAmount + ".jpg"
+    shutil.move(IMAGE_PATH + file_list[0], DATA_PATH +code+"/"+ fileName )
+    
+    return HttpResponse("1")
+
+
+def createDir(code):
+    try:
+        if not os.path.exists(DATA_PATH + code + "/" ):
+            os.makedirs(DATA_PATH + code + "/")
+    except OSError:
+        print("Directory Already Exists!")
+
 
 @csrf_exempt
 def joinInfo(request):
@@ -182,3 +176,4 @@ def joinInfo(request):
         return HttpResponse('-1')
 
 
+from django.shortcuts import render

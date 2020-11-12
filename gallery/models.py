@@ -22,7 +22,7 @@ class Exhibition(models.Model):
     dueDate = models.CharField(max_length=8, default='20000000')
     # 전시회 카테고리
     category = models.CharField(max_length=20, default='000000000')
-    
+
 
     # 파일 관련
     def __str__(self):
@@ -30,7 +30,7 @@ class Exhibition(models.Model):
 
 class Images(models.Model):
     photo = ProcessedImageField(
-            upload_to = 'test',
+            upload_to = 'temp',
             format = 'JPEG',
             options = {'quality':60},
             null=True)
