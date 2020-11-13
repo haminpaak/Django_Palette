@@ -58,7 +58,7 @@ def getExhibition(request):
     bp = Exhibition.objects.get(galleryCode = code)
     data = bp.galleryTitle + "&" + bp.galleryCreator+"&" + bp.galleryInfo + "&" +str(bp.galleryAmount) + "&" + bp.titles +"&"+ bp.contents + "&"+ bp.dueDate + "&"+ bp.category
     bp.save()
-
+    
     try :
         return HttpResponse(data)
     except Exceptions as e:
@@ -108,10 +108,11 @@ def register(request):
     with open(FILE_PATH + 'database.json', 'w', encoding='UTF-8-sig') as f:
         f.write(json.dumps(newList, ensure_ascii=False, indent=4))
 
-    newExhibition = Exhibition(galleryCode=CODE, galleryTitle=GalleryTitle, galleryCreator=GalleryCreator, galleryInfo=GalleryInfo, galleryAmount=GalleryAmount, titles=Titles, contents=Contents, dueDate=DueDate, category=Category)
+    newExhibition = Exhibition(galleryCode=CODE, galleryTitle=GalleryTitle, galleryCreator=GalleryCreator, galleryInfo=GalleryInfo, galleryAmount="0", titles="", contents="", dueDate=DueDate, category=Category)
 
     try :
         newExhibition.save(force_insert=True)
+        update()
         return HttpResponse('1')
     except Exception as e:
         print(e)
@@ -152,7 +153,7 @@ def create (request):
         bp.titles = titles
         bp.contents = contents
     else :
-        bp.contents = bp.titles + "-" + contents
+        bp.contents = bp.contents + "-" + contents
         bp.titles = bp.titles + "-" + titles
     
     bp.save()
@@ -162,7 +163,7 @@ def create (request):
     
     fileName = bp.galleryAmount + ".jpg"
     shutil.move(IMAGE_PATH + file_list[0], DATA_PATH +code+"/"+ fileName )
-    
+
     return HttpResponse("1")
 
 
