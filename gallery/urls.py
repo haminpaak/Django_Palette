@@ -6,6 +6,5 @@ urlpatterns = [
         path('getExhibition/', views.getExhibition, name='getExhibition'),
         path('delete/', views.deleteExhibition, name='deleteExhibition'),
         path('create/', views.create, name='create'),
-        path('joinInfo/', views.joinInfo, name='joinInfo'),
         path('update/', views.update, name='update'),
         ]

@@ -54,7 +54,17 @@ def update(request):
 # 전시회 정보 반환
 @csrf_exempt
 def getExhibition(request):
-	pass
+    code = request.POST.get("code")
+    bp = Exhibition.objects.get(galleryCode = code)
+    data = bp.galleryTitle + "&" + bp.galleryCreator+"&" + bp.galleryInfo + "&" +str(bp.galleryAmount) + "&" + bp.titles +"&"+ bp.contents + "&"+ bp.dueDate + "&"+ bp.category
+    bp.save()
+
+    try :
+        return HttpResponse(data)
+    except Exceptions as e:
+        print(e)
+        return HttpResponse('-1')
+    
 
 
 # 전시회 정보 저장
@@ -63,9 +73,6 @@ def register(request):
     GalleryTitle = request.POST.get('galleryTitle')
     GalleryCreator = request.POST.get('galleryCreator')
     GalleryInfo = request.POST.get('galleryInfo')
-    GalleryAmount = request.POST.get('galleryAmount')
-    Titles = request.POST.get('titles')
-    Contents = request.POST.get('contents')
     DueDate = request.POST.get('dueDate')
     Category = request.POST.get('category')
     
@@ -91,7 +98,7 @@ def register(request):
     except Exception as e:
 	    print(e)
 
-    dictToAdd = {"CODE":CODE, "TITLE":GalleryTitle, "CREATOR":GalleryCreator, "INFO":GalleryInfo, "AMOUNT":str(GalleryAmount), "ARTTITLES":Titles, "ARTCONTENTS":Contents, "DUEDATE":str(DueDate), "CATEGORY":Category}
+    dictToAdd = {"CODE":CODE, "TITLE":GalleryTitle, "CREATOR":GalleryCreator, "INFO":GalleryInfo, "AMOUNT":"0", "ARTTITLES":"", "ARTCONTENTS":"", "DUEDATE":str(DueDate), "CATEGORY":Category}
 
     newList["DATA"].append(dictToAdd)
     j.close()
@@ -130,6 +137,9 @@ def makeCode():
 def create (request):
     code = request.POST.get("code")
     image_list = request.FILES.getlist("image")
+    titles = request.POST.get("titles")
+    contents = request.POST.get("contents")
+
     print(code)
     for item in image_list:
         images = Images.objects.create(photo=item)
@@ -138,6 +148,12 @@ def create (request):
     file_list = os.listdir(IMAGE_PATH)
     bp = Exhibition.objects.get(galleryCode = code)
     bp.galleryAmount = str(int(bp.galleryAmount) + 1)
+    if (bp.galleryAmount == '1') :
+        bp.titles = titles
+        bp.contents = contents
+    else :
+        bp.contents = bp.titles + "-" + contents
+        bp.titles = bp.titles + "-" + titles
     
     bp.save()
 
@@ -156,24 +172,6 @@ def createDir(code):
             os.makedirs(DATA_PATH + code + "/")
     except OSError:
         print("Directory Already Exists!")
-
-
-@csrf_exempt
-def joinInfo(request):
-    code = request.POST.get('code')
-    title = request.POST.get('title')
-    content = request.POST.get('contents')
-
-    try :
-        bp = Exhibition.objects.get(galleryCode = code)
-        bp.galleryAmount = str(int(bp.galleryAmout) + 1)
-        bp.titles = bp.titles + "&"
-        bp.contents = bp.contents + "&"
-        bp.save()
-        return HttpResponse('1')
-    except Exception as e:
-        print(e)
-        return HttpResponse('-1')
 
 
 from django.shortcuts import render

@@ -69,9 +69,9 @@ def ask(request):
 
 @csrf_exempt
 def sendCode(request):
-    title = "palette 이메일 인증 번호"
-    content1 = "palette 이메일 인증번호는 ["
-    content2 = "] 입니다. 앱에서 올바르게 입력해주세요. 감사합니다."
+    title = "[Palette] Please verify your account"
+    content1 = "Your verifying numbere is ["
+    content2 = "] Please enter this number correctly on the app. Thanx:)"
 
     CODE = random.randrange(100000,1000000)
     Email = request.POST.get('email')
